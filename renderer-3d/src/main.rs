@@ -5,21 +5,29 @@ use winit::{
 };
 
 mod d2;
+mod d3;
+mod world;
 
 fn main() {
+    let my_world = world::World::new( d2::Color::new(255, 255, 255));
+
     let event_loop = EventLoop::new().unwrap();
 
-    let mut app = App{
-        window: None,
-        surface: None
-    };
+    let mut app = App::new(my_world);
 
     event_loop.run_app(&mut app).unwrap();
 }
 
 struct App {
     window: Option<Rc<Window>>,
-    surface: Option<Surface<Rc<Window>, Rc<Window>>>
+    surface: Option<Surface<Rc<Window>, Rc<Window>>>,
+    world: world::World
+}
+
+impl App {
+    fn new(my_world: world::World) -> App {
+        App { window: None, surface: None, world: my_world }
+    }
 }
 
 impl ApplicationHandler for App {
@@ -70,18 +78,21 @@ impl ApplicationHandler for App {
                     let mut drawing = d2::Drawing::new(buffer.as_mut(), width);
                     drawing.all_black();
 
-                    let middle_coord = d2::Vec2D::new(width as i32 /2, height as i32 / 2);
-                    let middle_color = d2::Color::new(100,100,100);
+                    self.world.next_step();
+                    self.world.draw(&mut buffer, width);
 
-                    drawing.draw_pixel(&middle_coord, &middle_color);
+                    // let middle_coord = d2::Vec2D::new(width as i32 /2, height as i32 / 2);
+                    // let middle_color = d2::Color::new(100,100,100);
 
-                    let point_1 = d2::Vec2D::new(100, 100);
-                    let mut point_2 = d2::Vec2D::new(200, 100);
+                    // drawing.draw_pixel(&middle_coord, &middle_color);
 
-                    point_2.turn(&point_1, 1.5*PI);
-                    let color = d2::Color::new(255,255,0);
+                    // let point_1 = d2::Vec2D::new(100, 100);
+                    // let mut point_2 = d2::Vec2D::new(200, 100);
 
-                    drawing.draw_line(&point_1, &point_2, &color);
+                    // point_2.turn(&point_1, 1.5*PI);
+                    // let color = d2::Color::new(255,255,0);
+
+                    // drawing.draw_line(&point_1, &point_2, &color);
                 }
 
                 buffer.present().unwrap();
